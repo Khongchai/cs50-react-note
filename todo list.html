@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        .center
+        {
+            text-align: center;
+        }
+        .glowOnHover:hover
+        {
+            cursor: pointer;
+            background: wheat;
+        }
+        .glowOnHover
+        {
+            transition: background .4s;
+        }
+    </style>
+    <script type="text/babel">
+        class App extends React.Component 
+        {
+            //pass props in just in case you wanna do something with them
+            constructor(props)
+            {
+                super(props);
+                //json obj saved in the state
+                this.state = 
+                {
+                    tasks: [],
+                    textfield: ""
+                }   
+            }
+            render() 
+            {
+                return(
+                    <div className="center">
+                        <h1>Tasks</h1>
+                        <ul>
+                            {this.state.tasks.map((task, i) => 
+                                <li onClick={this.removeFromList} data-index={i}className="glowOnHover" key={i}>
+                                    {task}
+                                </li>
+                            )}
+                        </ul>
+                        <input type="text" onChange={this.keyTrack} value={this.state.textfield}/>
+                        <button onClick={this.addToList}>Add task</button>
+                        <h5>Tasks length: {this.state.tasks.length}</h5>
+                    </div>
+                );
+            }
+            keyTrack = (event) =>
+            {
+                this.setState({
+                    textfield: event.target.value
+                })
+            }
+            addToList = () =>
+            {
+                if (this.state.textfield.length > 0)
+                {
+                    this.setState(state => ({
+                        tasks: [...state.tasks, state.textfield],
+                        textfield: ""
+                    }
+                    ), () => {
+                        //announce latest value
+                        announce(this.state.tasks[this.state.tasks.length - 1]);
+                    });
+                    
+                }
+            }
+            removeFromList = (event) =>
+            {
+                const index = event.target.dataset.index;
+                this.setState(state => {
+                    let tasks = [...state.tasks];
+                    tasks.splice(index, 1);
+                    return {
+                        //tasks: tasks << key and value have same name, can just do below
+                        tasks
+                    }
+                })
+            }
+
+        }
+        ReactDOM.render(<App />, document.querySelector('#app'));
+
+        
+        function announce(value)
+        {
+            alert(`Value added: ${value}`)
+        }
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+
+    </div>
+</body>
+</html>
