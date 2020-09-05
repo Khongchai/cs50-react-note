@@ -23,6 +23,17 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .cardSides
+        {
+            display: inline-block;
+            width: fit-content;
+            height: fit-content;
+            padding-left: 30px;
+            padding-right: 30px;
+            border: 1px solid black;
+            text-align: center;
+            margin-bottom: 10px;
+        }
     </style>
     <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
@@ -103,18 +114,61 @@
                 
             }
         }
+        //--------------------------------------------------------------------------------------------------------
         class Viewer extends React.Component
         {
-            render()
+            constructor(props)
             {
+                super(props);
+                this.state = {
+                    isFrontView: true,
+                    answerField: "",
+                    card: this.props.cards[this.getRandomInt(this.props.cards.length)]
+                }
+            }
+            render()
+            { 
                 return(
+                <div className="CenterContainer">
                     <div>
-                        This is the viewer.
-                        <hr/>
-                        <button onClick={this.props.switchMode}>Go to Editor</button>
+                        <div className="cardSides">
+                            <h1>{this.state.isFrontView? this.state.card.front: this.state.card.back}</h1>
+                        </div>
+
                     </div>
-                    
+                    <input onChange={this.handleChange} name="answer" placeholder="Enter your answer" value={this.state.answerField}/>
+                    <button onClick={this.checkAnswer}>Check</button>
+                    <button onClick={() => {this.setState(state => ({isFrontView: !state.isFrontView}))}}>Flip Card</button>
+                    <hr/>
+                    <button onClick={this.props.switchMode}>Go to Editor</button>
+                </div>
                 )
+            }
+
+            getRandomInt = (arrayLength) => 
+            {
+                let randInteger = Math.ceil(Math.random() * arrayLength) - 1;
+                return randInteger;
+                
+            }
+            handleChange = (event) => 
+            {
+                this.setState({
+                    answerField: event.target.value
+                })
+            }
+            checkAnswer = () =>
+            {
+                console.log("Check answer function");
+                /*
+                if (this.state.answerField === this.state.answer)
+                {
+                    this.setState(() => ({
+                        answerField: ""
+                    }))
+                    cardSide = this.getRandomCard(this.props.cards.length);
+                }
+                */
             }
         }
         class MainPage extends React.Component
