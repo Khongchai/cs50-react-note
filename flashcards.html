@@ -105,13 +105,13 @@
                         front: "",
                         back: ""
                     });
+                    
                 }
                 
             }
             deleteCard = (event) => 
             {   
                 this.props.deleteCard(event.target.dataset.index);
-                
             }
         }
         //--------------------------------------------------------------------------------------------------------
@@ -134,7 +134,9 @@
                         <div className="cardSides">
                             <h1>{this.state.isFrontView? this.state.card.front: this.state.card.back}</h1>
                         </div>
-
+                        <div>
+                        <h3>Score: {this.props.score}</h3>
+                        </div>
                     </div>
                     <input onChange={this.handleChange} name="answer" placeholder="Enter your answer" value={this.state.answerField}/>
                     <button onClick={this.checkAnswer}>Check</button>
@@ -159,16 +161,22 @@
             }
             checkAnswer = () =>
             {
-                console.log("Check answer function");
-                /*
-                if (this.state.answerField === this.state.answer)
+                if (parseInt(this.state.card.back) === parseInt(this.state.answerField))
                 {
                     this.setState(() => ({
+                        card: this.props.cards[this.getRandomInt(this.props.cards.length)],
                         answerField: ""
-                    }))
-                    cardSide = this.getRandomCard(this.props.cards.length);
+                    }));
+                    this.props.updateScore("increment");
                 }
-                */
+                else if (!!parseInt(this.state.answerField))
+                {
+                    this.setState(() => ({
+                        card: this.props.cards[this.getRandomInt(this.props.cards.length)],
+                        answerField: ""
+                    }));
+                    this.props.updateScore("decrement");
+                }
             }
         }
         class MainPage extends React.Component
@@ -184,11 +192,21 @@
                 this.state = {
                     //whether we are in edit mode or not.
                     editor: true,
-                    cards: []
+                    cards: [],
+                    score: 0
                 }
+            }
+            componentDidMount() 
+            {
+                window.addEventListener('load', this.handleLoad);
+            }
+            componentWillUnMount()
+            {
+                window.removeEventListener('load', this.handleLoad);
             }
             render()
             {
+                
                 if (this.state.editor)
                 {
                     return(
@@ -211,6 +229,8 @@
                             <Viewer 
                                 switchMode={this.switchMode} 
                                 cards={this.state.cards}
+                                updateScore={this.updateScore}
+                                score={this.state.score}
                             />
                         </div>
                     );
@@ -223,13 +243,38 @@
                     editor: !state.editor
                 }));
             }
+            handleLoad = () => {
+                this.setState(state => {   
+                    let prevStateCards = JSON.parse(localStorage.getItem("cards")) 
+                    let prevStateScore = localStorage.getItem("score");  
+                     
+                    if (!!prevStateCards)
+                    {
+                        return(
+                            {
+                                cards: prevStateCards.map(card => ({"front": card.front, "back": card.back})),
+                                score: prevStateScore
+                            } 
+                        )
+                    }
+                    else
+                    {
+                        return {score: prevStateScore}
+                    }
+                    
+                    
+                })
+            }
 
             addCard(front, back)
             {
                 this.setState(state => ({
                     //{front, back} is shorthand for {front: front, back: back}
                     cards: [...state.cards, {front, back}]
-                }))
+                }), () => {
+                    localStorage.setItem("cards", JSON.stringify(this.state.cards));
+                })
+                
             }
             deleteCard = (index) =>
             {
@@ -237,6 +282,15 @@
                     const cards = state.cards;
                     cards.splice(index, 1);
                     return {cards: cards}
+                })
+            }
+
+            updateScore = (operation) =>
+            {
+                this.setState(state => ({
+                    score: parseInt(operation==="increment"? state.score+=1: state.score-=1)
+                }), () => {
+                    localStorage.setItem("score", this.state.score);
                 })
             }
         }
