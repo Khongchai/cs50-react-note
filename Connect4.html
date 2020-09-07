@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Connect 4</title>
+    <style>
+        #root
+        {
+            height: 100vh;
+        }
+        .Center
+        {
+            position: relative;
+            height: 100%;
+            width: 600px;
+            margin: 0 auto;
+        }
+        table{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            position: relative;
+            top: 49%; 
+        }
+        svg
+        {
+            pointer-events: none;
+        }
+        .FocusedBlock
+        {
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+            background: burlywood;
+            cursor: pointer;
+        }
+        .FocusedBlock:hover{
+            transform: scale(1.5);
+        }
+        tr, td, table
+        {
+            border: 1px black solid;
+            border-collapse: collapse;
+            padding: 20px;
+            transition: background .4s, transform .4s, box-shadow .4s;
+        }
+    </style>
+    <script type="text/babel">
+    class MainContainer extends React.Component
+    {
+        constructor(props)
+        {
+            super(props);
+            this.state = {
+                columns: []
+            }
+        }
+
+        render()
+        {
+            const rows = this.state.columns.map((row, i) => {
+                return(
+                    <tr key={i}>
+                        {row}
+                    </tr>
+                )
+            });
+            return(
+            <div  className="Center">
+                <table>
+                    <tbody>
+                        {rows}
+                    </tbody>
+                </table>
+            </div>
+            );
+        }
+
+        componentDidMount()
+        {
+            this.setState({
+                columns: this.populateColumn()
+            });
+        }
+
+        populateColumn = () => 
+        {
+            const COLUMN_LENGTH = 7;
+            const ROW_LENGTH = 7;
+            var column = [];
+            for (let i = 0; i < COLUMN_LENGTH; i++)
+            {
+                //modify each row by the {i} key
+                var row = [];
+                for (let j = 0; j < ROW_LENGTH; j++)
+                {
+                    //change the svg's colorr by referring to the click event's child?
+                    row.push(<td key={j} data-index={j}onMouseEnter={this.bringToFocus} onMouseLeave={this.bringToFocus}>
+                        <svg height="50" width="50">
+                            <circle cx="25" cy="25" r="24" stroke="black" strokeWidth="1" fill="white" />
+                        </svg>
+                    </td>)
+                }
+                column.push(row);
+            }
+            return column;
+        }
+        bringToFocus = (event) => 
+        {
+            var rowNum = event.target.dataset.index;
+            var elements = document.querySelectorAll(`[data-index="${CSS.escape(rowNum)}"]`);
+            if (event.type == "mouseenter")
+            {
+                for (var i = 0; i < elements.length; i++)
+                {
+                    elements[i].classList.add("FocusedBlock");
+                }
+            }
+            else if (event.type == "mouseleave")
+            {
+                for (var i = 0; i < elements.length; i++)
+                {
+                    elements[i].classList.remove("FocusedBlock");
+
+                }
+            }
+            
+
+        }
+    }
+    ReactDOM.render(<MainContainer />, document.querySelector('#root'));
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+    
+</body>
+</html>
