@@ -13,7 +13,8 @@
             {
                 super(props);
                 this.currencies = ["AUD", "CAD", "CHF", "INR", "USD", "EUR", "GBP", "NZD", 
-                "JPY"]
+                "JPY", "THB"]
+                this.cached = []
                 this.state = {
                     base: "USD",
                     other: "EUR",
@@ -39,7 +40,7 @@
                                     {currency}
                                 </option>)}
                             </select>
-                            <input  disabled={true} 
+                            <input  disabled={true}
                                 value={this.state.converted === null? "Calculating...": this.state.converted} 
                                 name ="converted"/>
                         </div>
@@ -60,9 +61,25 @@
                 {
                     return;
                 }
+                //cache invalidation
+                //if cached data is older than 1 minute, update
+                if (this.cached[this.state.base] !== undefined && Date.now() - this.cached[this.state.base].timestamp < 1000 * 60)
+                {
+                    console.log(`Read cache for ${this.state.base}`);
+                    this.setState({
+                        converted: this.cached[this.state.base].rates[this.state.other] * value
+                    });
+                    return;
+                }
+                
                 fetch(`https://api.exchangeratesapi.io/latest?base=${this.state.base}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log(`Cached ${this.state.base}`);
+                    this.cached[this.state.base] = {
+                        rates: data.rates,
+                        timestamp: Date.now()
+                    };
                     this.setState({
                         converted: parseFloat(data.rates[this.state.other]) * value
                     })
