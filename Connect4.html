@@ -41,6 +41,10 @@
             background: burlywood;
             cursor: pointer;
         }
+        .addClicked
+        {
+            background: green !important;
+        }
         .FocusedBlock:hover{
             transform: scale(1.5);
         }
@@ -58,6 +62,8 @@
         constructor(props)
         {
             super(props);
+            this.COLUMN_LENGTH = 7;
+            this.ROW_LENGTH = 7;
             this.state = {
                 columns: []
             }
@@ -68,7 +74,7 @@
             const rows = this.state.columns.map((row, i) => {
                 return(
                     <tr key={i}>
-                        {row.row}
+                        {row}
                     </tr>
                 )
             });
@@ -87,24 +93,22 @@
         {
             this.setState({
                 columns: this.populateColumn().map(row => {
-                    return {"row": row, "clicked": false}
+                    return row
                 })
             });
         }
 
         populateColumn = () => 
         {
-            const COLUMN_LENGTH = 7;
-            const ROW_LENGTH = 7;
             var column = [];
-            for (let i = 0; i < COLUMN_LENGTH; i++)
+            for (let i = 0; i < this.COLUMN_LENGTH; i++)
             {
                 //modify each row by the {i} key
                 var row = [];
-                for (let j = 0; j < ROW_LENGTH; j++)
+                for (let j = 0; j < this.ROW_LENGTH; j++)
                 {
                     //change the svg's colorr by referring to the click event's child?
-                    row.push(<td key={j} data-horizontalindex={j} onMouseEnter={this.bringToFocus} onClick={this.addDot} onMouseLeave={this.bringToFocus}>
+                    row.push(<td key={j} data-verticalid={i} data-horizontalindex={j} data-click="false" onMouseEnter={this.bringToFocus} onClick={this.addDot} onMouseLeave={this.bringToFocus}>
                         <svg height="50" width="50">
                             <circle cx="25" cy="25" r="24" stroke="black" strokeWidth="1" fill="white" />
                         </svg>
@@ -118,7 +122,6 @@
         {
             var rowNum = event.target.dataset.horizontalindex;
             var elements = document.querySelectorAll(`[data-horizontalindex="${CSS.escape(rowNum)}"]`);
-            console.log(elements);
             if (event.type == "mouseenter")
             {
                 for (var i = 0; i < elements.length; i++)
@@ -137,24 +140,59 @@
         }
         addDot = (event) => 
         {
-            let rownum = event.target.dataset.horizontalindex;
-            
-            /* Change this to check all the state of object with "rownum" as horizontalindex
+            let rowNum = event.target.dataset.horizontalindex; 
+            var elements = document.querySelectorAll(`[data-horizontalindex="${CSS.escape(rowNum)}"]`);
+            for (let i = 0; i < this.COLUMN_LENGTH; i++)
+            {
+                let currentStatisFalse = elements[i].dataset.click === "false";
+                if (currentStatisFalse)
+                {
+                    //TODO
+                    console.log("Hello")
+                    elements[i].setAttribute("data-click", "true");
+                    break;
+                }
+            }
+            /*
             this.setState(state => {
-                let tempObj = Object.assign({}, state.columns);
-                return [tempObj.clicked? false: true]
-            });
-
-            this.setState(prevState => {
-            let jasper = Object.assign({}, prevState.jasper);  // creating copy of state variable jasper
-            jasper.name = 'someothername';                     // update the name property, assign a new value                 
-            return { jasper };                                 // return new object jasper object
+                let columns = state.columns.map(column => ({
+                    ...column
+                }));
+                for (let i = 0; i < this.COLUMN_LENGTH; i++)
+                {
+                    for (let j = 0; j < this.COLUMN_LENGTH; j++)
+                    {
+                        if (columns[i][j].props["data-horizontalindex"] == rowNum)
+                        {
+                            columns[i][j].props["click"] = true;
+                            break;
+                        }
+                    }
+                }
+                
+                return { columns: state.columns }
+                
             })
-            */
-            
 
+            /*
+            this.setState(state => {
+                for (let i = 0; i < this.COLUMN_LENGTH; i++)
+                {
+                    if (!newColumn[i].clicked)
+                    {
+                        newColumn[i].clicked = true;
+                        newColumn[i].classList.add("addList");
+                        break;
+                    }
+                }
+                
+                
+                
+                return {?}
             
-            
+                
+            }); 
+            */         
 
         }
     }
